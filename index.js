@@ -121,12 +121,14 @@ app.get('/r/:subreddit/:method*?', (request, response) => {
     if(request.params.method === "hot" ||request.params.method ==="top") { x = request.params.method}
      myReddit.getSubredditByName(request.params.subreddit)
      .then(result => {
-        //request.loggedInUser.id === result.moderatorId ? isModerator = true : isModerator = false;
+        var isLoggedIn = result.moderatorId || 0;
+        isLoggedIn === result.moderatorId ? isModerator = true : isModerator = false;
         return myReddit.getAllPosts(x, result.id);
      })
      .then(posts => response.render('reddit-post-list', {posts: posts, subredditName: request.params.subreddit, isModerator})
      );
 });
+
 
 
 app.get('/u/:username/:method*?', (request, response) => {

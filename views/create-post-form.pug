@@ -1,58 +1,68 @@
 extends layout.pug
 
-block append content
-    h1 Share a new link!
-    form(method="POST" action="/createPost" id="createPostForm")
-        p   Subreddit:
-            select(name="subreddit")
-                each subreddit in subreddits
-                    option(value= subreddit.name) #{subreddit.name}
-        p Post Type: 
-            label(for="link") Link 
-            input(type="radio" name="postType" value="link" id="link" checked)
-            label(for="self") Self-post 
-            input(type="radio" name="postType" value="self" id="self")
-        
-        p Title: 
-            input(type="text" name="title" required)
-            
-        p(id="urlContainer") URL: 
-            input(type="text" name="url" id="urlInput" required)
-        p(id="postTextContainer") Text: 
-            textarea(form="createPostForm" name="postText" maxlength=2000 rows="4" cols="50" id="postTextInput" required)
-        
-        p
-            button(type="submit") Create post!
-            
-        
-        script.
-            document.getElementById("urlContainer").style.display = 'block';
-            
-            document.getElementById("postTextInput").disabled = true;
-            document.getElementById("postTextContainer").style.display = 'none';
-            
-            var radios = document.getElementsByName("postType");
-            radios.forEach(radio => {
-                radio.onclick = function() {
-                    if (this.value === "link") {
-                        document.getElementById("urlInput").disabled = false;
-                        document.getElementById("urlContainer").style.display = 'block';
+block content
+
+    div.post_wrapper
+        ul.post-list
+            li.post 
+                h1 Share a new link!
+                
+    div.post_wrapper
+        ul.post-list
+            li.post 
+                form(method="POST" action="/createPost" id="createPostForm")
+                    div(class="subredditSelectWrapper")
+                        p   Subreddit:
+                            div(class="styled-select black semi-square")
+                                select(name="subreddit")
+                                    each subreddit in subreddits
+                                        option(value= subreddit.name) #{subreddit.name}
+                    p Post Type: 
+                        label(for="link") Link 
+                        input(type="radio" name="postType" value="link" id="link" checked)
+                        label(for="self") Self-post 
+                        input(type="radio" name="postType" value="self" id="self")
+                    
+                    p Title: 
+                        input(type="text" name="title" required)
                         
-                        document.getElementById("postTextInput").disabled = true;
-                        document.getElementById("postTextContainer").style.display = 'none';
-                    }
-                    else {
-                        document.getElementById("urlInput").disabled = true;
-                        document.getElementById("urlContainer").style.display = 'none';
+                    p(id="urlContainer") URL: 
+                        input(type="text" name="url" id="urlInput" required)
+                    p(id="postTextContainer") Text: 
+                        textarea(form="createPostForm" name="postText" maxlength=2000 rows="4" cols="50" id="postTextInput" required)
+                    
+                    p
+                        button(type="submit").hotTop Create post!
+            
+        
+        // script.
+        //     document.getElementById("urlContainer").style.display = 'block';
+            
+        //     document.getElementById("postTextInput").disabled = true;
+        //     document.getElementById("postTextContainer").style.display = 'none';
+            
+        //     var radios = document.getElementsByName("postType");
+        //     radios.forEach(radio => {
+        //         radio.onclick = function() {
+        //             if (this.value === "link") {
+        //                 document.getElementById("urlInput").disabled = false;
+        //                 document.getElementById("urlContainer").style.display = 'block';
                         
-                        document.getElementById("postTextInput").disabled = false;
-                        document.getElementById("postTextContainer").style.display = 'block';
-                    }
-                }
-            });
+        //                 document.getElementById("postTextInput").disabled = true;
+        //                 document.getElementById("postTextContainer").style.display = 'none';
+        //             }
+        //             else {
+        //                 document.getElementById("urlInput").disabled = true;
+        //                 document.getElementById("urlContainer").style.display = 'none';
+                        
+        //                 document.getElementById("postTextInput").disabled = false;
+        //                 document.getElementById("postTextContainer").style.display = 'block';
+        //             }
+        //         }
+        //     });
         
             
-        style.
-            textarea{
-                resize:none;
-            }
+        // style.
+        //     textarea{
+        //         resize:none;
+        //     }

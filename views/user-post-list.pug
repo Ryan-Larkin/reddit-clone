@@ -23,6 +23,9 @@ block content
                             a(href="/u/"+post.user.username)= post.user.username
                             span  in 
                             a(href="/r/"+post.subreddit.name) /r/#{post.subreddit.name}
+                        p
+                            a(href="/post/"+post.id) Comments  
+                            
                         p Score: #{post.voteScore} Upvotes: #{post.numUpvotes} Downvotes: #{post.numDownvotes}
                          form(action="/vote", method="POST") 
                             input(type="hidden" name="postId" value=`${post.id}`)

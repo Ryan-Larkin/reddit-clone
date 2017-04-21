@@ -21,10 +21,10 @@ block content
                         a(href="/u/"+post.user.username)= post.user.username
                         span  in 
                         a(href="/r/"+post.subreddit.name) /r/#{post.subreddit.name}
-                    
+    
                     if post.postText    
-                        p(id="postTextDisplay") Post: 
-                            p!= post.postText
+                        p(id="postTextDisplay")
+                            p(id="postTextId")!= post.postText
                         
                     p Score: #{post.voteScore} Upvotes: #{post.numUpvotes} Downvotes: #{post.numDownvotes}
                         form(action="/vote", method="POST") 

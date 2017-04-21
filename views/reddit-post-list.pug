@@ -18,6 +18,8 @@ block content
                             a(href=post.url)= post.title
                         else
                             a(href="/post/"+post.id)= post.title
+                        p
+                            a(href="/post/"+post.id) Comments  
                             
                         p Submitted by 
                             a(href="/u/"+post.user.username)= post.user.username

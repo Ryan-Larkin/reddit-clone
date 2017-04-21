@@ -93,13 +93,14 @@ module.exports = function(myReddit) {
     });
     
     authController.get('/resetPassword',function(request,response){
+        console.log(request.query);
            response.render('reset-password',{token: request.query.token});
         
         
     });
     
     authController.post('/resetPAssword', function(request,response){
-        
+            myReddit.resetPassword(request.body.token,request.body.password);
         
         
     })

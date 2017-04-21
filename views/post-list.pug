@@ -9,8 +9,10 @@ block content
             li.post
                 h1 Welcome to Better Reddit
     div.hotTopContainer
-        a(href="https://whatever-zachfz.c9users.io/sort/hot" class="hotTop") Hot 
-        a(href="https://whatever-zachfz.c9users.io/sort/top" class="hotTop") Top
+        a(href="/sort/hot" class="hotTop") Hot 
+        a(href="/sort/top" class="hotTop") Top
+        
+        a(href='/createPost' class="hotTop" style="margin-left:485px") Create a post
     
     div.post-wrapper
         ul.post-list
@@ -22,7 +24,7 @@ block content
                         else
                             a(href="/post/"+post.id)= post.title
                         p
-                            a(href="/post/"+post.id) Comments
+                            a(href="/post/"+post.id) Comments                       
                         p Submitted by 
                             a(href="/u/"+post.user.username)= post.user.username
                             span  in 
