@@ -73,3 +73,22 @@ CREATE TABLE comments (
   FOREIGN KEY (userId) REFERENCES users (id) ON DELETE SET NULL,
   FOREIGN KEY (postId) REFERENCES posts (id) ON DELETE CASCADE
 );
+
+CREATE TABLE commentvotes(
+userId INT,
+commentId INT,
+voteDirection TINYINT,
+createdAt DATETIME NOT NULL,
+updatedAt DATETIME NOT NULL,
+PRIMARY KEY(userId,commentId),
+KEY userdId (userId),
+KEY commentId(commentId),
+FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+FOREIGN KEY (commentId) REFERENCES comments (id) ON DELETE CASCADE
+);
+
+CREATE TABLE passwordResetTokens(
+userId INT,
+token VARCHAR(100) ,
+UNIQUE KEY token (token)
+);

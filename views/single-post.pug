@@ -1,0 +1,58 @@
+extends layout.pug
+
+block title
+    title Welcome to Reddit Clone!!!
+
+block content
+    div.hotTopContainer
+        h1 #{post.user.username}'s post
+    
+    
+    div.post-wrapper
+        ul.post-lis
+            li.post
+                h2.single-post
+                    if post.url
+                        a(href=post.url)= post.title
+                    else
+                        a(href="/post/"+post.id)= post.title
+                        
+                    p Submitted by 
+                        a(href="/u/"+post.user.username)= post.user.username
+                        span  in 
+                        a(href="/r/"+post.subreddit.name) /r/#{post.subreddit.name}
+                    
+                    if post.postText    
+                        p(id="postTextDisplay") Post: 
+                            p!= post.postText
+                        
+                    p Score: #{post.voteScore} Upvotes: #{post.numUpvotes} Downvotes: #{post.numDownvotes}
+                        form(action="/vote", method="POST") 
+                            input(type="hidden" name="postId" value=`${post.id}`)
+                            button(class="plus" type="submit" name="vote" value="1") 
+                            button(class="minus" type="submit" name="vote" value="-1") 
+                    
+    div.post-wrapper
+        ul.post-lis
+            li.post    
+                h2 create comment:
+                 form(method="POST" action="/createComment")
+                    div.input
+                        input(type="hidden" name="postId" value=`${post.id}`)
+                        textarea(name="comment", cols="40", rows="5")
+                    div.actions
+                        input(type="submit", value="submit").hotTop
+    
+        div.post-wrapper
+            ul.post-list
+                li 
+                    h2 comments
+                each comment in comments
+                    li.comment
+                        h3.comment 
+                             p!=  comment.text
+                             p made by: #{comment.user.username}
+                              form(action="/commentVote", method="POST") 
+                                input(type="hidden" name="commentId" value=`${comment.id}`)
+                                button(type="submit" name="vote" value="1").plus
+                                button(type="submit" name="vote" value="-1").minus

@@ -1,0 +1,9 @@
+extends layout.pug
+
+block append content  
+    div.post-wrapper
+        ul.post-list
+            each subreddit in subreddits
+                li 
+                    a(href=`r/${subreddit.name}`) #{subreddit.name}
+                    p!= subreddit.description

@@ -1,0 +1,12 @@
+extends layout.pug
+
+block content
+    div.post-wrapper
+        ul.post-lis
+            li.post    
+             h2 Please enter your email
+             form(action="/auth/createResetToken", method="POST")
+              p Email:
+               input(type="text" name="email" placeholder"Email")
+              p
+               button(type="submit").hotTop Submit

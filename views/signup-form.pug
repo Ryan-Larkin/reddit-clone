@@ -1,0 +1,22 @@
+extends layout.pug
+
+block content
+    div.post-wrapper
+        ul.post-lis
+            li.post    
+                 h2 Signup
+    div.post-wrapper
+        ul.post-lis
+            li.post    
+                form(action="/auth/signup", method="POST")
+                        p Username :  
+                            input(type="text" name="username" placeholder="Username" required)
+                        p Password :  
+                            input(type="password" name="password" placeholder="Password" required)
+                        p   Email   :   
+                            input(type="text" name="email" placeholder"Email")
+                        div(class="g-recaptcha" data-sitekey="6Lf-Gx4UAAAAALorws0PrHoptDX985scxbp875_m")
+                        p
+                            button(type="submit") Signup!
+    
+    

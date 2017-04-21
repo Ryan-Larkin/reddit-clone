@@ -55,7 +55,7 @@ This custom middleware checks in the cookies if there is a SESSION token and val
 NOTE: This middleware is currently commented out! Uncomment it once you've implemented the RedditAPI
 method `getUserFromSession`
  */
-// app.use(checkLoginToken(myReddit));
+app.use(checkLoginToken(myReddit));
 
 
 
@@ -95,62 +95,202 @@ app.use('/auth', authController(myReddit));
 app.use('/static', express.static(__dirname + '/public'));
 
 // Regular home Page
-app.get('/', function(request, response) {
+app.get('/', (request, response) => {
     myReddit.getAllPosts()
-    .then(function(posts) {
-        response.render('post-list', {posts: posts});
-    })
-    .catch(function(error) {
-        response.render('error', {error: error});
-    })
+    //.then(result => console.log(result))
+    .then(posts =>  response.render('post-list', {posts: posts}))
+    .catch(error => response.render('error', {error: error}));
 });
 
 // Listing of subreddits
 app.get('/subreddits', function(request, response) {
-    /*
-    1. Get all subreddits with RedditAPI
-    2. Render some HTML that lists all the subreddits
-     */
+    myReddit.getAllSubreddits()
+    .then(allSubreddits => {
+        response.render('subreddits-list', {subreddits: allSubreddits});
+    })
     
-    response.send("TO BE IMPLEMENTED");
 });
 
-// Subreddit homepage, similar to the regular home page but filtered by sub.
-app.get('/r/:subreddit', function(request, response) {
-    response.send("TO BE IMPLEMENTED");
+// 1 gets all posts from the address bar
+// 2 gets the id from the get getSubredditByName which returns an object with id and name
+// 3 gets all the post for the requested id with the getAllPosts function
+// 4 renders the posts object to html with pug and sends it to the page
+app.get('/r/:subreddit/:method*?', (request, response) => {
+    var x = "top";
+    var isModerator = false;
+    if(request.params.method === "hot" ||request.params.method ==="top") { x = request.params.method}
+     myReddit.getSubredditByName(request.params.subreddit)
+     .then(result => {
+        request.loggedInUser.id === result.moderatorId ? isModerator = true : isModerator = false;
+        return myReddit.getAllPosts(x, result.id);
+     })
+     .then(posts => response.render('reddit-post-list', {posts: posts, subredditName: request.params.subreddit, isModerator})
+     );
 });
+
+
+app.get('/u/:username/:method*?', (request, response) => {
+    var x = "top";
+    if(request.params.method === "hot" ||request.params.method ==="top") {
+         x = request.params.method;
+    }
+    myReddit.getAllPostsForUsername(request.params.username, x)
+    .then(posts => response.render('user-post-list', {posts: posts, username: request.params.username}));
+    
+});
+
+
+
 
 // Sorted home page
 app.get('/sort/:method', function(request, response) {
-    response.send("TO BE IMPLEMENTED");
+    if(request.params.method === "hot" ||request.params.method ==="top"){
+        return myReddit.getAllPosts(request.params.method)
+        .then(function(posts){
+            response.render('post-list', {posts: posts});
+        });
+    }
+    else{
+        response.status(404);
+    }
+    
 });
 
 app.get('/post/:postId', function(request, response) {
-    response.send("TO BE IMPLEMENTED");
+    //check if postId contains letters, if it does then send it to the 404 error page.
+    if (request.params.postId.match(/[a-z]/i)) {
+        response.render('error', {error: {message: "404, PAGE NOT FOUND", stack: 'Post does not exist'}});
+    }
+    else {
+        Promise.all([myReddit.getSinglePost(request.params.postId), myReddit.getCommentsForPost(request.params.postId)])
+        .then(function(arrayOfFutureValues){
+            var post = arrayOfFutureValues[0];
+            if(post.id) {
+                response.render('single-post', {post: post, // post object
+                                                comments: arrayOfFutureValues[1]}); // comment object
+            }
+            else {
+                response.render('error', {error: {message: "404, PAGE NOT FOUND", stack: 'Post does not exist'}});
+            }
+        })
+        .catch(e => console.log(e));
+    }
 });
 
-/*
-This is a POST endpoint. It will be called when a form is submitted with method="POST" action="/vote"
-The goal of this endpoint is to receive an up/down vote by a logged in user.
-Since you can only vote if you are logged in, the onlyLoggedIn middleware is interposed before the final request handler.
-The app.* methods of express can actually take multiple middleware, forming a chain that is only used for that path
 
-This basically says: if there is a POST /vote request, first pass it thru the onlyLoggedIn middleware. If that
-middleware calls next(), then also pass it to the final request handler specified.
- */
-app.post('/vote', onlyLoggedIn, function(request, response) {
-    response.send("TO BE IMPLEMENTED");
+
+app.post('/vote', onlyLoggedIn, (request, response) => {
+    return Promise.all([myReddit.getUserFromSession(request.cookies.SESSION), request.body])
+    .then(result => {    
+        return { postId : Number(result[1].postId),
+                     userId : result[0].id,
+                     voteDirection: Number(result[1].vote) };
+    })
+    .then(result => {
+      return  myReddit.createVote(result);
+    })
+    .then(result => {
+        response.redirect(`${request.header('Referer')}`);
+    })
+    .catch(e => console.log(e));
 });
+
+app.post('/deletePost', onlyLoggedIn, (request, response) => {
+    myReddit.deletePost(request.body)
+    .then(result =>  response.redirect(`${request.header('Referer')}`));
+});
+  // request.body = { postId: '52', deletePost: 'true' }  
+
 
 // This handler will send out an HTML form for creating a new post
 app.get('/createPost', onlyLoggedIn, function(request, response) {
-    response.send("TO BE IMPLEMENTED");
+    myReddit.getAllSubreddits()
+    .then(allSubreddits => {
+        response.render('create-post-form', {subreddits: allSubreddits});
+    });
 });
 
 // POST handler for form submissions creating a new post
 app.post('/createPost', onlyLoggedIn, function(request, response) {
-    response.send("TO BE IMPLEMENTED");
+        var p1 = myReddit.getUserFromSession(request.cookies.SESSION);
+        var p2 = myReddit.getSubredditByName(request.body.subreddit);
+        
+        return Promise.all([p1,p2])
+        .then(values => {
+            // set these values to null by default
+            // later on we'll populate the relevant one with data returned by the appropriate form input
+            var postUrl = null;
+            var postText = null;
+            
+            // Check which one of these is present, and set the appropriate variable to that value
+            // Should only ever have one of these
+            if (request.body.url !== undefined) {
+                postUrl = request.body.url;
+            }
+            else { // If the url isn't set, that means the postText is set
+                postText = request.body.postText;
+            }
+            return myReddit.createPost({
+                userId: values[0].id, // p1 was the first promise, which returned a user object, so values[0].id will return the user id
+                title: request.body.title, // title entered in the form
+                url: postUrl, // either null or the url entered from the form
+                postText: postText, // either null or the post text entered from the form
+                subredditId: values[1].id // p2 was the second promise, which returned a subreddit object, so values[1].id will return the subreddit id
+            });
+        })
+        .then(post => { // this returns the post id from the previous promise, which is the currently created post
+            response.redirect(`/post/${post}`);
+        })
+        .catch(error => {
+            throw error;
+        });
 });
+
+    app.get('/test', (request, response) => {
+        console.log(request.loggedInUser);
+    });
+    
+    app.post('/createComment', onlyLoggedIn,function(request,response){
+        return Promise.all([myReddit.getUserFromSession(request.cookies.SESSION),request.body])
+         .then(function(result){
+             
+             return {
+                      userId : result[0].id,
+                      postId : result[1].postId,
+                      text: result[1].comment
+             };
+         }).then(function (result){
+             myReddit.createComment(result);
+         }).then(result => {
+        response.redirect(`${request.header('Referer')}`);
+    });
+        
+    });
+  
+
+ app.post('/commentVote', onlyLoggedIn, function(request, response) {
+     return Promise.all([myReddit.getUserFromSession(request.cookies.SESSION), request.body])
+         .then(function(result) {
+ 
+             return {
+                 commentId: result[1].commentId,
+                 userId: result[0].id,
+                 voteDirection: Number(result[1].vote)
+ 
+             };
+         }).then(function(result) {
+               myReddit.createCommentVote(result);
+         })
+         .then(function(result){
+             response.redirect(`${request.header('Referer')}`);
+         });
+ 
+ });
+    
+
+
+
+
 
 // Listen
 var port = process.env.PORT || 3000;
@@ -163,3 +303,5 @@ app.listen(port, function() {
         console.log('Web server is listening on http://localhost:' + port);
     }
 });
+
+    

@@ -4,13 +4,10 @@ block title
     title Gray Reddit
 
 block content
-    div.post-wrapper
-        ul.post-list
-            li.post
-                h1 Welcome to Better Reddit
     div.hotTopContainer
-        a(href="https://whatever-zachfz.c9users.io/sort/hot" class="hotTop") Hot 
-        a(href="https://whatever-zachfz.c9users.io/sort/top" class="hotTop") Top
+        h1    Welcome to #{username}'s posts
+        a(href=`/u/${username}/hot`).hotTop Hot
+        a(href=`/u/${username}/top`).hotTop Top 
     
     div.post-wrapper
         ul.post-list
@@ -21,8 +18,7 @@ block content
                             a(href=post.url)= post.title
                         else
                             a(href="/post/"+post.id)= post.title
-                        p
-                            a(href="/post/"+post.id) Comments
+                            
                         p Submitted by 
                             a(href="/u/"+post.user.username)= post.user.username
                             span  in 
@@ -35,4 +31,3 @@ block content
         
                         if post.isImage
                          img(src=post.url, width='50', height='50')
-                         

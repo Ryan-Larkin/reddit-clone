@@ -1,0 +1,20 @@
+extends layout.pug
+
+block content
+    div.post-wrapper
+        ul.post-lis
+            li.post    
+                h2 Login
+    div.post-wrapper
+        ul.post-lis
+            li.post    
+                form(action="/auth/login", method="POST")
+                        p Username :  
+                            input(type="text" name="username" placeholder="Username" required)
+                        p Password :  
+                            input(type="password" name="password" placeholder="Password" required)
+                        p
+                            button(type="submit").hotTop Login!
+                        P 
+                            a(href="https://whatever-zachfz.c9users.io/auth/recover") FORGOT PASSWORD? CLICK ME
+                
