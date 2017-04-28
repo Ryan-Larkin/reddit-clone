@@ -222,7 +222,11 @@ a {
 }
 
 .post-wrapper a {
-	color: #292c2f
+	color: #292c2f;
+}
+
+.forgot-password {
+	color:white !important;
 }
 
 .post-wrapper li {
